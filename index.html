@@ -128,8 +128,9 @@ input,select,textarea{font:inherit;color:inherit}
 <div id="root"></div>
 
 <script type="module">
-  import { initializeApp } from "firebase/app";
-  import { getFirestore, doc, onSnapshot, setDoc } from "firebase/firestore";
+  // 주소 뒤에 'https://www.gstatic.com/firebasejs/...'가 붙어야 브라우저가 인식합니다.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA5_A6xsuNDL8y2ErpNJfDpS_s-JrSVDMg",
@@ -144,9 +145,8 @@ input,select,textarea{font:inherit;color:inherit}
   const db = getFirestore(app);
   const docRef = doc(db, "data", "shared_state");
 
-  // 전역 연동 함수
   window.saveToFirebase = async function(newState) {
-    try { await setDoc(docRef, newState); } catch(e) { console.error(e); }
+    try { await setDoc(docRef, newState); } catch(e) { console.error("Firebase 저장 실패:", e); }
   };
 
   window.syncWithFirebase = function(onUpdate) {
