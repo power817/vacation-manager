@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="휴가" />
 <meta name="theme-color" content="#111111" />
+<meta name="mobile-web-app-capable" content="yes" />
+
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23111'/><text x='50%25' y='54%25' font-family='-apple-system,BlinkMacSystemFont' font-size='90' font-weight='800' fill='white' text-anchor='middle' dominant-baseline='middle'>휴</text></svg>" />
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23111'/><text x='50%25' y='56%25' font-family='-apple-system' font-size='36' font-weight='800' fill='white' text-anchor='middle'>휴</text></svg>" />
 
@@ -15,11 +17,11 @@
 :root{--bg:#f5f6f8;--ink:#111;--muted:#666;--line:#e7e8ec;--hover:#f0f1f4;--soft:#eef0f3;--soft2:#f5f6f8;--red:#dc2626;--redSoft:#fde8e8;--amber:#f59e0b;--amberSoft:#fef3c7;--green:#16a34a;--greenSoft:#dcfce7;--emerald:#059669;--blue:#2563eb;--blueSoft:#e0ecff;}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom);overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);overflow-x:hidden}
 button{font:inherit;cursor:pointer;border:0;background:transparent;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 input,select,textarea{font:inherit;color:inherit}
 .app-shell{max-width:1180px;margin:0 auto;padding:16px 16px calc(120px + env(safe-area-inset-bottom))}
-.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .topbar-inner{max-width:1180px;margin:0 auto;padding:0 16px;height:56px;display:flex;align-items:center;gap:12px;min-width:0}
 .logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
 .title{font-size:15px;font-weight:800;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:180px}
@@ -154,7 +156,7 @@ input,select,textarea{font:inherit;color:inherit}
   .icon-btn{width:32px;height:32px}
   .app-shell{padding:12px 12px calc(100px + env(safe-area-inset-bottom))}
 
-  /* 탭 줄에서 '+ 휴가 신청' 인라인 버튼 숨기고, FAB로 대체 */
+  /* 탭 줄의 인라인 '+ 휴가 신청' 숨기고 FAB 표시 */
   .tabs-action{display:none}
   .fab{display:inline-flex;align-items:center;justify-content:center}
 
@@ -164,21 +166,17 @@ input,select,textarea{font:inherit;color:inherit}
   .cal-weekdays > div{padding:6px 0;font-size:10px}
   .day{min-height:74px;padding:3px}
   .day-num{font-size:10px;padding:1px 4px}
-  .add-btn{display:none} /* 모바일에선 hover가 없으니 숨김; 날짜 탭으로 신청 */
+  .add-btn{display:none}
   .ev{font-size:10px;padding:1px 5px;gap:2px;border-radius:5px;margin-top:2px}
   .ev .dot{width:5px;height:5px}
-  .ev .kind{display:none}  /* "· 연차" 부분 숨겨서 이름만 보이게 */
+  .ev .kind{display:none}
   .more{font-size:9px;padding:1px 2px}
 
-  /* 요청 행 */
   .row{padding:10px 12px;gap:8px}
   .row .right{margin-left:0;flex-basis:100%;display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
-
-  /* 팀원 행 */
   .person-row{padding:10px 12px;gap:8px}
   .person-row .right{margin-left:0;flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 
-  /* 모달 바텀시트 느낌 강화 */
   .modal-body{padding:14px 16px;gap:12px}
   .type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -194,11 +192,34 @@ input,select,textarea{font:inherit;color:inherit}
 </head>
 <body>
 <div id="root"></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyA5_A6xsuNDL8y2ErpNJfDpS_s-JrSVDMg",
+    authDomain: "vacation-manager-a9233.firebaseapp.com",
+    projectId: "vacation-manager-a9233",
+    storageBucket: "vacation-manager-a9233.firebasestorage.app",
+    messagingSenderId: "33242163675",
+    appId: "1:33242163675:web:d21b6d5bdb0027a71a9ffe"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const docRef = doc(db, "data", "shared_state");
+  window.saveToFirebase = async function(newState) {
+    try { await setDoc(docRef, newState); } catch(e) { console.error("Firebase 저장 실패:", e); }
+  };
+  window.syncWithFirebase = function(onUpdate) {
+    onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) onUpdate(docSnap.data());
+    });
+  };
+</script>
 
 <script>
 (function(){
   'use strict';
-
+  /* ============ DOM 헬퍼 ============ */
   function h(tag, props){
     var el = document.createElement(tag);
     if (props) {
@@ -216,7 +237,9 @@ input,select,textarea{font:inherit;color:inherit}
         else el.setAttribute(k, v);
       }
     }
-    for (var i = 2; i < arguments.length; i++) addChild(el, arguments[i]);
+    for (var i = 2; i < arguments.length; i++) {
+      addChild(el, arguments[i]);
+    }
     return el;
   }
   function addChild(el, c) {
@@ -225,7 +248,7 @@ input,select,textarea{font:inherit;color:inherit}
     if (c instanceof Node) { el.appendChild(c); return; }
     el.appendChild(document.createTextNode(String(c)));
   }
-
+  /* ============ 데이터 ============ */
   var LS_KEY = 'vacmgr/v1';
   var LEAVE_TYPES = {
     annual:   {label:'연차',     deduct:1.0, color:'#2563eb', soft:'#e0ecff', text:'#1d4ed8'},
@@ -236,7 +259,6 @@ input,select,textarea{font:inherit;color:inherit}
     official: {label:'공가',     deduct:0.0, color:'#0d9488', soft:'#d6f2ee', text:'#0f766e'}
   };
   var TYPE_KEYS = Object.keys(LEAVE_TYPES);
-
   function defaultState(){
     return {
       company:'우리 회사',
@@ -253,7 +275,7 @@ input,select,textarea{font:inherit;color:inherit}
   }
   function load(){ try{var r=localStorage.getItem(LS_KEY);if(!r)return defaultState();var s=JSON.parse(r);if(!s.people||!s.requests)return defaultState();return s;}catch(e){return defaultState();} }
   function save(s){ try{localStorage.setItem(LS_KEY, JSON.stringify(s));}catch(e){} }
-
+  /* ============ 날짜 유틸 ============ */
   function pad(n){return n<10?'0'+n:''+n;}
   function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function parseYMD(s){var p=s.split('-');return new Date(+p[0], +p[1]-1, +p[2]);}
@@ -262,7 +284,6 @@ input,select,textarea{font:inherit;color:inherit}
   function daysInclusive(a,b){var s=parseYMD(a),e=parseYMD(b);return Math.max(0, Math.round((e-s)/86400000))+1;}
   function rangeDates(a,b){var out=[],c=parseYMD(a),e=parseYMD(b);while(c<=e){out.push(ymd(c));c=addDays(c,1);}return out;}
   function todayYMD(){return ymd(new Date());}
-
   function usedDaysFor(uid, requests){
     var u=0;
     for (var i=0;i<requests.length;i++){
@@ -285,7 +306,7 @@ input,select,textarea{font:inherit;color:inherit}
     }
     return p;
   }
-
+  /* ============ 상태 및 Firebase 실시간 연동 ============ */
   var state = load();
   var ui = {
     tab: 'calendar',
@@ -299,24 +320,40 @@ input,select,textarea{font:inherit;color:inherit}
     toast: null,
     toastTimer: null
   };
-
-  function setPersistent(upd){ state = typeof upd==='function' ? upd(state) : Object.assign({}, state, upd); save(state); schedule(); }
-  function setUi(upd){ ui = typeof upd==='function' ? upd(ui) : Object.assign({}, ui, upd); schedule(); }
-
   var scheduled = false;
   function schedule(){
     if (scheduled) return;
     scheduled = true;
     requestAnimationFrame(function(){ scheduled = false; render(); });
   }
-
+  // Firebase 저장 연동
+  function setPersistent(upd){
+    state = typeof upd==='function' ? upd(state) : Object.assign({}, state, upd);
+    save(state);
+    if (window.saveToFirebase) window.saveToFirebase(state);
+    schedule();
+  }
+  function setUi(upd){ ui = typeof upd==='function' ? upd(ui) : Object.assign({}, ui, upd); schedule(); }
+  // 앱 로드 및 실시간 동기화 시작
+  window.addEventListener('load', function() {
+    var checkSync = setInterval(function(){
+      if (window.syncWithFirebase) {
+        clearInterval(checkSync);
+        window.syncWithFirebase(function(remoteState) {
+          state = remoteState;
+          save(state);
+          schedule();
+        });
+      }
+    }, 100);
+  });
   function showToast(msg){
     if (ui.toastTimer) clearTimeout(ui.toastTimer);
     ui.toast = msg;
     ui.toastTimer = setTimeout(function(){ ui.toast=null; ui.toastTimer=null; schedule(); }, 2200);
     schedule();
   }
-
+  /* ============ 비즈니스 액션 ============ */
   function submitRequest(payload){
     var id = 'r_' + Math.random().toString(36).slice(2,9);
     var next = Object.assign({id:id, status:'pending'}, payload);
@@ -362,7 +399,7 @@ input,select,textarea{font:inherit;color:inherit}
       try{ localStorage.removeItem(LS_KEY); }catch(e){}
       state = defaultState();
       ui = Object.assign({}, ui, {modal:null, menuOpen:false});
-      schedule();
+      if (window.saveToFirebase) window.saveToFirebase(state);
       showToast('초기화 완료');
     }
   }
@@ -378,13 +415,20 @@ input,select,textarea{font:inherit;color:inherit}
     reader.onload = function(){
       try{
         var s = JSON.parse(reader.result);
-        if (s.people && s.requests){ state = s; save(state); schedule(); showToast('가져오기 완료'); }
+        if (s.people && s.requests){
+          setPersistent(s);
+          showToast('가져오기 완료');
+        }
         else showToast('파일 형식이 올바르지 않습니다');
       }catch(e){ showToast('파일을 읽을 수 없습니다'); }
     };
     reader.readAsText(file);
   }
-
+  /* ============ 휴가 신청 열기 (데스크톱 버튼 / 모바일 FAB / 날짜 탭 공용) ============ */
+  function firstApprover(me){
+    var a = state.people.find(function(p){ return (p.role==='approver'||p.role==='admin') && p.id!==me.id; });
+    return a ? a.id : '';
+  }
   function openNewRequest(initialDate){
     var me = state.people.find(function(p){return p.id===state.currentUserId;});
     setUi({modal:{kind:'request', type:'annual',
@@ -392,22 +436,16 @@ input,select,textarea{font:inherit;color:inherit}
       end:   initialDate || todayYMD(),
       reason:'', approverId:firstApprover(me)}});
   }
-  function firstApprover(me){
-    var a = state.people.find(function(p){ return (p.role==='approver'||p.role==='admin') && p.id!==me.id; });
-    return a ? a.id : '';
-  }
-
+  /* ============ 렌더 ============ */
   function render(){
     var active = document.activeElement;
     var fid = active && active.id;
     var ss = active && active.tagName === 'INPUT' && active.type !== 'date' ? active.selectionStart : null;
     var se = active && active.tagName === 'INPUT' && active.type !== 'date' ? active.selectionEnd : null;
     var scrollY = window.scrollY;
-
     var root = document.getElementById('root');
     root.innerHTML = '';
     root.appendChild(buildApp());
-
     if (fid) {
       var restored = document.getElementById(fid);
       if (restored) {
@@ -419,36 +457,30 @@ input,select,textarea{font:inherit;color:inherit}
     }
     window.scrollTo(0, scrollY);
   }
-
   function buildApp(){
     var me = state.people.find(function(p){return p.id===state.currentUserId;}) || state.people[0];
     var isApprover = me.role==='approver' || me.role==='admin';
     var isAdmin = me.role==='admin';
     var pendingForMe = state.requests.filter(function(r){return r.status==='pending' && r.approverId===me.id;});
-
     var wrap = h('div', null,
       buildTopBar(me),
       h('div', {class:'app-shell'},
         buildTabs(me, isApprover, isAdmin, pendingForMe),
         buildView(me, isApprover, isAdmin, pendingForMe)
       ),
-      // FAB - 모바일에서만 display:inline-flex
+      // FAB - 모바일에서만 CSS로 표시
       h('button', {class:'fab', onclick:function(){ openNewRequest(); }, 'aria-label':'휴가 신청'}, '+ 휴가 신청')
     );
-
     if (ui.modal && ui.modal.kind === 'request') wrap.appendChild(buildRequestModal(me));
     if (ui.modal && ui.modal.kind === 'person')  wrap.appendChild(buildPersonEditor());
     if (ui.toast) wrap.appendChild(h('div', {class:'toast'}, ui.toast));
-
     return wrap;
   }
-
   function buildTopBar(me){
     var fileInput = h('input', {
       type:'file', style:{display:'none'}, accept:'.json,application/json',
       onchange: function(e){ if (e.target.files && e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; }
     });
-
     var titleEl = ui.editingCompany
       ? h('input', {
           id:'title-edit', class:'title-edit', autofocus:true, value: ui.editingCompanyValue,
@@ -460,7 +492,6 @@ input,select,textarea{font:inherit;color:inherit}
           class:'title',
           onclick: function(){ setUi({editingCompany:true, editingCompanyValue: state.company}); }
         }, state.company + ' · 휴가');
-
     var userSelect = h('select', {
       class:'user-select',
       onchange: function(e){ switchUser(e.target.value); }
@@ -471,14 +502,12 @@ input,select,textarea{font:inherit;color:inherit}
       if (p.id === state.currentUserId) opt.selected = true;
       userSelect.appendChild(opt);
     });
-
     var menuEl = ui.menuOpen ? h('div', {class:'menu', onmouseleave:function(){setUi({menuOpen:false});}},
       h('button', {onclick:function(){ exportJSON(); setUi({menuOpen:false}); }}, 'JSON 내보내기'),
       h('button', {onclick:function(){ fileInput.click(); setUi({menuOpen:false}); }}, 'JSON 가져오기'),
       h('div', {class:'sep'}),
       h('button', {class:'danger', onclick:function(){ setUi({menuOpen:false}); resetAll(); }}, '전체 초기화')
     ) : null;
-
     return h('div', {class:'topbar'},
       h('div', {class:'topbar-inner'},
         h('div', {class:'logo'}, 'V'),
@@ -493,10 +522,8 @@ input,select,textarea{font:inherit;color:inherit}
       )
     );
   }
-
   function buildTabs(me, isApprover, isAdmin, pendingForMe){
     var tabs = h('div', {class:'tabs'});
-
     function tab(key, label, badge){
       var el = h('button', {
         class: 'tab' + (ui.tab===key ? ' active':''),
@@ -505,19 +532,16 @@ input,select,textarea{font:inherit;color:inherit}
       if (badge) el.appendChild(h('span', {class:'badge'}, String(badge)));
       return el;
     }
-
     tabs.appendChild(tab('calendar', '캘린더'));
     tabs.appendChild(tab('mine', '내 휴가'));
     if (isApprover) tabs.appendChild(tab('inbox', '결재함', pendingForMe.length > 0 ? pendingForMe.length : null));
     if (isAdmin) tabs.appendChild(tab('team', '팀원 관리'));
-
-    // 데스크톱에서만 보이는 인라인 버튼. 모바일에선 FAB가 대신 나옴.
+    // 데스크톱에서만 보이는 인라인 버튼 (모바일은 .tabs-action 으로 숨김, FAB 로 대체)
     tabs.appendChild(h('div', {class:'right tabs-action'},
       h('button', {class:'btn-primary', onclick:function(){ openNewRequest(); }}, '+ 휴가 신청')
     ));
     return tabs;
   }
-
   function buildView(me, isApprover, isAdmin, pendingForMe){
     if (ui.tab === 'calendar') return buildCalendar(me);
     if (ui.tab === 'mine')     return buildMine(me);
@@ -525,22 +549,19 @@ input,select,textarea{font:inherit;color:inherit}
     if (ui.tab === 'team' && isAdmin)     return buildTeam();
     return buildCalendar(me);
   }
-
+  /* ---- 캘린더 ---- */
   function buildCalendar(me){
     var first = startOfMonth(ui.monthCursor);
     var gridStart = addDays(first, -first.getDay());
     var cells = []; for (var i=0;i<42;i++) cells.push(addDays(gridStart, i));
     var monthLabel = ui.monthCursor.getFullYear() + '년 ' + (ui.monthCursor.getMonth()+1) + '월';
-
     var byDate = {};
     state.requests.forEach(function(r){
       if (r.status==='rejected') return;
       rangeDates(r.start, r.end).forEach(function(k){ (byDate[k]=byDate[k]||[]).push(r); });
     });
-
     var personById = {};
     state.people.forEach(function(p){ personById[p.id] = p; });
-
     var head = h('div', {class:'cal-head'},
       h('button', {class:'icon-btn', onclick:function(){ setUi({monthCursor:new Date(ui.monthCursor.getFullYear(), ui.monthCursor.getMonth()-1, 1)}); }}, '‹'),
       h('button', {class:'btn-outline', onclick:function(){ setUi({monthCursor:startOfMonth(new Date())}); }}, '오늘'),
@@ -551,12 +572,10 @@ input,select,textarea{font:inherit;color:inherit}
         return h('span', null, h('span', {class:'dot', style:{background:t.color}}), ' ', t.label);
       }))
     );
-
     var weekdays = h('div', {class:'cal-weekdays'});
     ['일','월','화','수','목','금','토'].forEach(function(d,i){
       weekdays.appendChild(h('div', {class: i===0?'sun':i===6?'sat':''}, d));
     });
-
     var grid = h('div', {class:'cal-grid'});
     cells.forEach(function(d){
       var key = ymd(d);
@@ -565,25 +584,23 @@ input,select,textarea{font:inherit;color:inherit}
       var isToday = key === todayYMD();
       var wknd = d.getDay()===0 || d.getDay()===6;
       var cls = 'day' + (wknd?' wknd':'') + (inMonth?'':' outside');
-
       var numCls = 'day-num' + (isToday?' today':'') + (d.getDay()===0?' sun':'') + (d.getDay()===6?' sat':'');
-
-      // 모바일에선 cell 전체가 탭 타겟(신청 열기). 데스크톱은 + 버튼.
+      // 모바일은 셀 자체를 탭해서 신청 열림. 데스크톱은 hover 시 +버튼 노출.
       var cell = h('div', {class:cls, onclick:function(ev){
-        // 이벤트 자체 클릭 시 신청 열지 않기 — 헤더 버튼(+) 영역만 cell 의도
         if (ev.target.closest('.ev')) return;
-        if (ev.target.closest('.add-btn')) return; // add-btn 자체가 처리
-        // 모바일에서는 cell 탭으로 열기
+        if (ev.target.closest('.add-btn')) return;
         if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
           openNewRequest(key);
         }
       }},
         h('div', {class:'day-head'},
           h('span', {class:numCls}, String(d.getDate())),
-          h('button', {class:'add-btn', onclick:function(ev){ ev.stopPropagation(); openNewRequest(key); }}, '+')
+          h('button', {class:'add-btn', onclick:function(ev){
+            ev.stopPropagation();
+            openNewRequest(key);
+          }}, '+')
         )
       );
-
       items.slice(0,3).forEach(function(r){
         var per = personById[r.userId];
         var t = LEAVE_TYPES[r.type];
@@ -600,50 +617,44 @@ input,select,textarea{font:inherit;color:inherit}
         cell.appendChild(ev);
       });
       if (items.length > 3) cell.appendChild(h('div', {class:'more'}, '+' + (items.length-3) + '명'));
-
       grid.appendChild(cell);
     });
-
     return h('div', {class:'card'}, head, weekdays, grid);
   }
-
+  /* ---- 내 휴가 ---- */
   function buildMine(me){
     var mine = state.requests.filter(function(r){return r.userId===me.id;}).sort(function(a,b){return b.start.localeCompare(a.start);});
     var used = usedDaysFor(me.id, state.requests);
     var pending = pendingDaysFor(me.id, state.requests);
     var remaining = me.annual - used;
-
     var statEl = h('div', {class:'stat-grid'},
       stat('총 연차', me.annual + '일'),
       stat('사용', used + '일'),
       stat('승인 대기', pending + '일', '#b45309'),
       stat('잔여', remaining + '일', remaining<=3?'#dc2626':'#16a34a', true)
     );
-
     var listEl = h('div', {class:'card'},
       h('div', {class:'card-head'}, h('div', {class:'card-title'}, '내 신청 내역')),
       mine.length === 0
         ? h('div', {class:'empty'}, '아직 신청한 휴가가 없습니다.')
         : h('div', {class:'divide'}, mine.map(function(r){ return buildRow(r, true); }))
     );
-
     return h('div', {style:{display:'flex', flexDirection:'column', gap:'14px'}}, statEl, listEl);
   }
-
   function stat(label, value, color, strong){
     return h('div', {class:'stat'},
       h('div', {class:'lbl'}, label),
       h('div', {class:'val' + (strong?' val-lg':''), style:{color: color || '#111'}}, value)
     );
   }
-
+  /* ---- 결재함 ---- */
   function buildInbox(pendingForMe){
     if (pendingForMe.length === 0) {
       return h('div', {class:'card empty'}, '대기 중인 결재 건이 없습니다.');
     }
     return h('div', {class:'card divide'}, pendingForMe.map(function(r){ return buildRow(r, false); }));
   }
-
+  /* ---- 요청 행 ---- */
   function buildRow(r, mine){
     var personById = {};
     state.people.forEach(function(p){ personById[p.id]=p; });
@@ -655,7 +666,6 @@ input,select,textarea{font:inherit;color:inherit}
     if (r.status === 'approved') statusEl = h('span', {class:'chip status-approved'}, '승인');
     else if (r.status === 'rejected') statusEl = h('span', {class:'chip status-rejected'}, '반려');
     else statusEl = h('span', {class:'chip status-pending'}, '대기');
-
     var row = h('div', {class:'row'},
       h('div', {style:{display:'flex', alignItems:'center', gap:'8px', minWidth:'0'}},
         h('span', {class:'dot', style:{background:t.color}}),
@@ -669,7 +679,6 @@ input,select,textarea{font:inherit;color:inherit}
       ),
       r.reason ? h('div', {style:{fontSize:'13px', color:'#555', maxWidth:'260px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', minWidth:'0'}}, '"' + r.reason + '"') : null
     );
-
     var actions = h('div', {class:'right', style:{display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap'}}, statusEl);
     if (mine && r.status === 'pending') {
       actions.appendChild(h('button', {class:'btn-outline', onclick:function(){ cancelMine(r.id); }}, '취소'));
@@ -679,67 +688,48 @@ input,select,textarea{font:inherit;color:inherit}
       actions.appendChild(h('button', {class:'btn-success', onclick:function(){ decide(r.id, 'approved', ui.noteDrafts[r.id] || ''); }}, '승인'));
     }
     row.appendChild(actions);
-
     if (!mine && ui.openNoteId === r.id) {
       row.appendChild(h('div', {style:{width:'100%'}},
         h('input', {
           id: 'note-' + r.id, class:'input', style:{marginTop:'6px'},
           placeholder:'승인/반려 메모 (선택)', value: ui.noteDrafts[r.id] || '',
-          oninput: function(e){ ui.noteDrafts[r.id] = e.target.value; }
+          oninput: function(e){ var v = e.target.value; ui.noteDrafts[r.id] = v; }
         })
       ));
     }
     if (r.status !== 'pending' && r.decidedNote) {
       row.appendChild(h('div', {style:{width:'100%', fontSize:'11px', color:'#666', paddingLeft:'6px'}}, '결재 메모: ' + r.decidedNote));
     }
-    if (mine && approver && r.status === 'pending') {
-      row.appendChild(h('div', {style:{width:'100%', fontSize:'11px', color:'#888'}}, '결재자: ' + approver.name));
-    }
     return row;
   }
-
+  /* ---- 팀원 관리 ---- */
   function buildTeam(){
     var head = h('div', {class:'card-head'},
-      h('div', {class:'card-title'}, '팀원 목록 ',
-        h('span', {style:{color:'#aaa', fontSize:'13px', fontWeight:500}}, '(' + state.people.length + ')')
-      ),
+      h('div', {class:'card-title'}, '팀원 목록'),
       h('div', {class:'right'},
         h('button', {class:'btn-primary', onclick:function(){
           setUi({modal:{kind:'person', person:{id:'u_'+Math.random().toString(36).slice(2,7), name:'', dept:'', role:'member', annual:15}, isNew:true}});
         }}, '+ 팀원 추가')
       )
     );
-
     var list = h('div', {class:'divide'});
     state.people.forEach(function(p){
       var used = usedDaysFor(p.id, state.requests);
       var remaining = p.annual - used;
-      var roleLbl = p.role==='admin'?'관리자':p.role==='approver'?'결재자':'일반';
-
       list.appendChild(h('div', {class:'person-row'},
-        h('div', {class:'avatar'}, p.name ? p.name.charAt(0) : '?'),
+        h('div', {class:'avatar'}, p.name.charAt(0)),
         h('div', {class:'person-meta'},
-          h('span', {class:'nm'}, p.name || '(이름없음)'),
-          h('span', {class:'sub'}, p.dept + ' · ' + roleLbl)
+          h('span', {class:'nm'}, p.name),
+          h('span', {class:'sub'}, p.dept + ' · ' + (p.role==='admin'?'관리자':p.role==='approver'?'결재자':'일반'))
         ),
-        h('div', {class:'right', style:{display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap'}},
-          h('span', {style:{fontSize:'13px', color:'#555', fontVariantNumeric:'tabular-nums'}},
-            used + '/' + p.annual + '일 · ',
-            h('strong', {style:{color: remaining<=3?'#dc2626':'#059669'}}, '잔여 ' + remaining + '일')
-          ),
-          h('button', {class:'btn-outline', onclick:function(){
-            setUi({modal:{kind:'person', person:Object.assign({},p), isNew:false}});
-          }}, '편집'),
-          h('button', {class:'btn-danger-outline', onclick:function(){
-            if (confirm(p.name + '님을 삭제할까요? 관련 신청 내역도 제거됩니다.')) removePerson(p.id);
-          }}, '삭제')
+        h('div', {class:'right'},
+          h('button', {class:'btn-outline', onclick:function(){ setUi({modal:{kind:'person', person:Object.assign({},p), isNew:false}}); }}, '편집')
         )
       ));
     });
-
     return h('div', {class:'card'}, head, list);
   }
-
+  /* ---- 휴가 신청 모달 ---- */
   function buildRequestModal(me){
     var m = ui.modal;
     var t = LEAVE_TYPES[m.type];
@@ -749,146 +739,56 @@ input,select,textarea{font:inherit;color:inherit}
     var count = isHalf ? 0.5 : daysInclusive(m.start, endToUse) * t.deduct;
     var usedDays = usedDaysFor(me.id, state.requests);
     var remaining = me.annual - usedDays;
-    var wouldRemain = t.deduct > 0 ? (remaining - count) : remaining;
-    var overBudget = t.deduct > 0 && wouldRemain < 0;
+    var wouldRemain = remaining - count;
+    var overBudget = wouldRemain < 0 && t.deduct > 0;
     var approvers = state.people.filter(function(p){ return (p.role==='approver'||p.role==='admin') && p.id!==me.id; });
-    var canSubmit = !invalidRange && !overBudget && m.approverId && !isNaN(new Date(m.start).getTime());
-
     function updateModal(patch){ setUi({modal: Object.assign({}, ui.modal, patch)}); }
-
-    var typeGrid = h('div', {class:'type-grid'});
-    TYPE_KEYS.forEach(function(k){
-      var v = LEAVE_TYPES[k];
-      var sub = v.deduct===1 ? '1일 차감' : v.deduct===0.5 ? '0.5일 차감' : '연차 미차감';
-      typeGrid.appendChild(h('button', {
-        class:'type-card' + (m.type===k?' selected':''),
-        onclick: function(){ updateModal({type:k}); }
-      },
-        h('div', {class:'type-name'}, h('span', {class:'dot', style:{background:v.color}}), v.label),
-        h('div', {class:'type-sub'}, sub)
-      ));
-    });
-
-    var dateRow = h('div', {class:'two-col'},
-      h('div', null,
-        h('div', {class:'field-lbl'}, isHalf?'날짜':'시작일'),
-        h('input', {id:'m-start', class:'input', type:'date', value:m.start,
-          oninput:function(e){ updateModal({start:e.target.value}); }})
-      ),
-      h('div', null,
-        h('div', {class:'field-lbl'}, '종료일'),
-        h('input', {id:'m-end', class:'input', type:'date', value:isHalf?m.start:m.end, disabled:isHalf,
-          oninput:function(e){ updateModal({end:e.target.value}); }})
-      )
-    );
-
-    var reasonEl = h('div', null,
-      h('div', {class:'field-lbl'}, '사유 (선택)'),
-      h('input', {id:'m-reason', class:'input', value:m.reason, placeholder:'예) 개인 용무, 가족 행사 등',
-        oninput:function(e){ m.reason = e.target.value; }})
-    );
-
-    var approverSel = h('select', {id:'m-approver', class:'select',
-      onchange:function(e){ updateModal({approverId:e.target.value}); }});
-    approvers.forEach(function(a){
-      var opt = h('option', {value:a.id}, a.name + ' · ' + a.dept);
-      if (a.id === m.approverId) opt.selected = true;
-      approverSel.appendChild(opt);
-    });
-
-    var sum = h('div', {class:'summary'},
-      h('div', {class:'ln'}, h('span', {class:'muted'}, '차감'), h('span', null, h('strong', null, t.deduct===0?'미차감':(count + '일')))),
-      h('div', {class:'ln'}, h('span', {class:'muted'}, '현재 잔여'), h('span', null, remaining + '일')),
-      h('div', {class:'ln'},
-        h('span', {class:'muted'}, '신청 후 잔여'),
-        h('span', {style:{fontWeight:800, color: overBudget?'#dc2626':'#111'}}, wouldRemain + '일')
-      )
-    );
-    if (invalidRange) sum.appendChild(h('div', {class:'danger'}, '종료일이 시작일보다 앞설 수 없습니다.'));
-    if (overBudget) sum.appendChild(h('div', {class:'danger'}, '잔여 연차가 부족합니다.'));
-
     var modalBox = h('div', {class:'modal'},
-      h('div', {class:'modal-head'},
-        h('div', {class:'modal-title'}, '휴가 신청'),
-        h('div', {class:'right'}, h('button', {class:'icon-btn', onclick:function(){ setUi({modal:null}); }}, '✕'))
-      ),
+      h('div', {class:'modal-head'}, h('div', {class:'modal-title'}, '휴가 신청')),
       h('div', {class:'modal-body'},
-        h('div', null, h('div', {class:'field-lbl'}, '유형'), typeGrid),
-        dateRow,
-        reasonEl,
-        h('div', null,
-          h('div', {class:'field-lbl'}, '결재자'),
-          approvers.length === 0
-            ? h('div', {style:{fontSize:'13px', color:'#dc2626'}}, '결재 권한이 있는 팀원이 없습니다.')
-            : approverSel
+        h('div', {class:'field-lbl'}, '유형'),
+        h('div', {class:'type-grid'}, TYPE_KEYS.map(function(k){
+          var v = LEAVE_TYPES[k];
+          return h('button', {class:'type-card' + (m.type===k?' selected':''), onclick:function(){ updateModal({type:k}); }},
+            h('div', {class:'type-name'}, v.label),
+            h('div', {class:'type-sub'}, v.deduct + '일 차감')
+          );
+        })),
+        h('div', {class:'two-col'},
+          h('div', null, h('div', {class:'field-lbl'}, '시작일'), h('input', {class:'input', type:'date', value:m.start, oninput:function(e){ updateModal({start:e.target.value}); }})),
+          h('div', null, h('div', {class:'field-lbl'}, '종료일'), h('input', {class:'input', type:'date', value:endToUse, disabled:isHalf, oninput:function(e){ updateModal({end:e.target.value}); }}))
         ),
-        sum
+        h('div', null, h('div', {class:'field-lbl'}, '사유'), h('input', {class:'input', value:m.reason, oninput:function(e){ m.reason = e.target.value; }})),
+        h('div', null, h('div', {class:'field-lbl'}, '결재자'), h('select', {class:'select', onchange:function(e){ updateModal({approverId:e.target.value}); }}, approvers.map(function(a){ return h('option', {value:a.id, selected:a.id===m.approverId}, a.name); })))
       ),
       h('div', {class:'modal-foot'},
         h('button', {class:'btn-modal cancel', onclick:function(){ setUi({modal:null}); }}, '취소'),
-        h('button', {class:'btn-modal btn-primary', disabled:!canSubmit, onclick:function(){
-          submitRequest({
-            userId: me.id, type: m.type,
-            start: m.start, end: isHalf ? m.start : m.end,
-            reason: m.reason || '', approverId: m.approverId
-          });
+        h('button', {class:'btn-modal btn-primary', disabled:invalidRange || overBudget, onclick:function(){
+          submitRequest({ userId: me.id, type: m.type, start: m.start, end: endToUse, reason: m.reason || '', approverId: m.approverId });
         }}, '제출')
       )
     );
-
-    return h('div', {class:'modal-root', onclick:function(e){
-      if (e.target.classList.contains('modal-root')) setUi({modal:null});
-    }}, modalBox);
+    return h('div', {class:'modal-root'}, modalBox);
   }
-
+  /* ---- 팀원 편집 모달 ---- */
   function buildPersonEditor(){
-    var m = ui.modal;
-    var p = m.person;
-    var valid = p.name.trim() && p.dept.trim() && p.annual >= 0;
-
-    function updateP(patch){
-      setUi({modal: Object.assign({}, ui.modal, {person: Object.assign({}, p, patch)})});
-    }
-
-    var roleSel = h('select', {class:'select', onchange:function(e){ updateP({role:e.target.value}); }});
-    [['member','일반'],['approver','결재자'],['admin','관리자']].forEach(function(x){
-      var opt = h('option', {value:x[0]}, x[1]); if (p.role===x[0]) opt.selected = true; roleSel.appendChild(opt);
-    });
-
+    var m = ui.modal; var p = m.person;
+    function updateP(patch){ setUi({modal: Object.assign({}, ui.modal, {person: Object.assign({}, p, patch)})}); }
     var modalBox = h('div', {class:'modal', style:{maxWidth:'420px'}},
-      h('div', {class:'modal-head'}, h('div', {class:'modal-title'}, m.isNew ? '팀원 추가' : '팀원 편집')),
+      h('div', {class:'modal-head'}, h('div', {class:'modal-title'}, '팀원 편집')),
       h('div', {class:'modal-body'},
-        h('div', null, h('div', {class:'field-lbl'}, '이름'),
-          h('input', {id:'pe-name', class:'input', value:p.name, oninput:function(e){ updateP({name:e.target.value}); }})),
-        h('div', null, h('div', {class:'field-lbl'}, '부서'),
-          h('input', {id:'pe-dept', class:'input', value:p.dept, oninput:function(e){ updateP({dept:e.target.value}); }})),
-        h('div', {class:'two-col'},
-          h('div', null, h('div', {class:'field-lbl'}, '권한'), roleSel),
-          h('div', null, h('div', {class:'field-lbl'}, '연간 연차(일)'),
-            h('input', {id:'pe-annual', class:'input', type:'number', min:'0', step:'0.5', value:String(p.annual),
-              oninput:function(e){ updateP({annual:Number(e.target.value)}); }}))
-        )
+        h('input', {class:'input', value:p.name, placeholder:'이름', oninput:function(e){ updateP({name:e.target.value}); }}),
+        h('input', {class:'input', value:p.dept, placeholder:'부서', oninput:function(e){ updateP({dept:e.target.value}); }}),
+        h('input', {class:'input', type:'number', value:p.annual, oninput:function(e){ updateP({annual:Number(e.target.value)}); }})
       ),
       h('div', {class:'modal-foot'},
         h('button', {class:'btn-modal cancel', onclick:function(){ setUi({modal:null}); }}, '취소'),
-        h('button', {class:'btn-modal btn-primary', disabled:!valid, onclick:function(){
-          upsertPerson(p); setUi({modal:null});
-        }}, '저장')
+        h('button', {class:'btn-modal btn-primary', onclick:function(){ upsertPerson(p); setUi({modal:null}); }}, '저장')
       )
     );
-
-    return h('div', {class:'modal-root', onclick:function(e){
-      if (e.target.classList.contains('modal-root')) setUi({modal:null});
-    }}, modalBox);
+    return h('div', {class:'modal-root'}, modalBox);
   }
-
-  try {
-    render();
-  } catch(e) {
-    document.getElementById('root').innerHTML =
-      '<div style="max-width:700px;margin:40px auto;padding:24px;background:#fff1f2;border:1px solid #fecaca;border-radius:12px;color:#991b1b;white-space:pre-wrap;font-family:monospace;font-size:12px">' +
-      '앱 로딩 오류:\n' + (e.stack || e.message || String(e)) + '</div>';
-  }
+  try { render(); } catch(e) { console.error(e); }
 })();
 </script>
 </body>
