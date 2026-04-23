@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>휴가 관리</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="휴가" />
+<meta name="theme-color" content="#111111" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23111'/><text x='50%25' y='54%25' font-family='-apple-system,BlinkMacSystemFont' font-size='90' font-weight='800' fill='white' text-anchor='middle' dominant-baseline='middle'>휴</text></svg>" />
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23111'/><text x='50%25' y='56%25' font-family='-apple-system' font-size='36' font-weight='800' fill='white' text-anchor='middle'>휴</text></svg>" />
+
+<style>
+:root{--bg:#f5f6f8;--ink:#111;--muted:#666;--line:#e7e8ec;--hover:#f0f1f4;--soft:#eef0f3;--soft2:#f5f6f8;--red:#dc2626;--redSoft:#fde8e8;--amber:#f59e0b;--amberSoft:#fef3c7;--green:#16a34a;--greenSoft:#dcfce7;--emerald:#059669;--blue:#2563eb;--blueSoft:#e0ecff;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+button{font:inherit;cursor:pointer;border:0;background:transparent;color:inherit;-webkit-tap-highlight-color:transparent}
+input,select,textarea{font:inherit;color:inherit}
+.app-shell{max-width:1180px;margin:0 auto;padding:16px 16px 120px}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:0 16px;height:56px;display:flex;align-items:center;gap:12px}
+.logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.title{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.title-edit{border:0;border-bottom:1px solid rgba(0,0,0,.3);background:transparent;padding:2px 4px;font-size:15px;font-weight:800;outline:none;font-family:inherit}
+.spacer{flex:1}
+.user-select{border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#fff;font-size:13px;max-width:220px}
+.user-select:hover{background:#f5f6f8}
+.icon-btn{width:36px;height:36px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+.icon-btn:hover{background:var(--hover)}
+.menu{position:absolute;right:0;top:40px;width:180px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:4px;z-index:60}
+.menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px;font-size:13px}
+.menu button:hover{background:var(--hover)}
+.menu .danger{color:var(--red)}
+.menu .sep{height:1px;background:var(--soft);margin:4px 2px}
+.tabs{display:flex;align-items:center;gap:8px;margin:0 0 16px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:8px 16px;border-radius:999px;font-size:13px;font-weight:500;background:#fff;border:1px solid var(--line);white-space:nowrap}
+.tab:hover{background:var(--hover)}
+.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab .badge{background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:999px;margin-left:6px}
+.btn-primary{background:var(--ink);color:#fff;padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600}
+.btn-primary:hover{background:#000}
+.btn-primary:disabled{background:var(--soft);color:#aaa;cursor:not-allowed}
+.btn-outline{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
+.btn-outline:hover{background:var(--hover)}
+.btn-danger-outline{padding:6px 12px;border:1px solid #fecaca;color:var(--red);border-radius:999px;font-size:12px;background:#fff}
+.btn-danger-outline:hover{background:#fef2f2}
+.btn-success{padding:6px 12px;background:var(--emerald);color:#fff;border-radius:999px;font-size:12px;font-weight:600}
+.btn-success:hover{background:#047857}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--soft);display:flex;align-items:center;gap:8px}
+.card-title{font-size:15px;font-weight:800}
+.divide > * + *{border-top:1px solid var(--soft)}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:720px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat .lbl{font-size:11px;font-weight:600;color:var(--muted)}
+.stat .val{margin-top:4px;font-size:20px;font-weight:800}
+.stat .val-lg{font-size:24px}
+.cal-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--soft);flex-wrap:wrap}
+.cal-label{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-left:4px}
+.cal-legend{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:10.5px;color:#666}
+@media(max-width:640px){.cal-legend{display:none}}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;vertical-align:middle;flex-shrink:0}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--soft);font-size:11px;font-weight:700;color:#666}
+.cal-weekdays > div{text-align:center;padding:8px 0}
+.cal-weekdays .sun{color:var(--red)}.cal-weekdays .sat{color:var(--blue)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.day{position:relative;border-bottom:1px solid var(--soft);border-right:1px solid var(--soft);min-height:108px;padding:6px;background:#fff}
+.day.wknd{background:#fafbfd}
+.day.outside{opacity:.5;background:#f7f8fa}
+.day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.day-num{font-size:11px;font-weight:800;color:#333;padding:2px 6px;border-radius:6px}
+.day-num.today{background:var(--ink);color:#fff}
+.day-num.sun{color:var(--red)}.day-num.sat{color:var(--blue)}
+.day-num.today.sun,.day-num.today.sat{color:#fff}
+.add-btn{opacity:0;width:20px;height:20px;border-radius:999px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center;transition:opacity .12s}
+.day:hover .add-btn{opacity:1}
+.ev{display:flex;align-items:center;gap:4px;font-size:11px;padding:2px 6px;border-radius:6px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ev .who{font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.ev .kind{opacity:.75}
+.ev.pending{border:1px dashed currentColor}
+.more{font-size:10px;color:#666;padding:2px 4px}
+.row{padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.status-approved{background:var(--greenSoft);color:#15803d}
+.status-rejected{background:var(--redSoft);color:var(--red)}
+.status-pending{background:var(--amberSoft);color:#b45309}
+.modal-root{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .14s ease}
+@media(min-width:640px){.modal-root{align-items:center;padding:16px}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-width:520px;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:94vh;overflow-y:auto}
+@media(min-width:640px){.modal{border-radius:18px}}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--soft);display:flex;align-items:center}
+.modal-title{font-size:17px;font-weight:800}
+.modal-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.modal-foot{padding:12px 16px;border-top:1px solid var(--soft);display:flex;gap:8px}
+.field-lbl{font-size:11px;font-weight:700;color:#666;margin-bottom:6px}
+.input,.select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;background:#fff;outline:none;font-family:inherit}
+.input:focus,.select:focus{border-color:var(--ink)}
+.input:disabled{background:var(--soft2);color:#888}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.type-card{text-align:left;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+.type-card.selected{border-color:var(--ink);border-width:2px;padding:9px}
+.type-name{display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px}
+.type-sub{font-size:10.5px;color:#666;margin-top:3px}
+.summary{background:var(--soft2);border-radius:12px;padding:12px 14px;font-size:13px}
+.summary .ln{display:flex;justify-content:space-between;padding:2px 0}
+.summary .muted{color:#666}
+.summary .danger{color:var(--red);font-size:11px;margin-top:6px}
+.btn-modal{flex:1;padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px}
+.btn-modal.cancel{background:#fff;border:1px solid var(--line)}
+.btn-modal.cancel:hover{background:var(--hover)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;font-size:13px;padding:10px 18px;border-radius:999px;z-index:200;box-shadow:0 8px 20px rgba(0,0,0,.2);animation:fadeIn .16s ease}
+.person-row{padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.avatar{width:36px;height:36px;border-radius:999px;background:linear-gradient(135deg,#e5e7eb,#d1d5db);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.person-meta{display:flex;flex-direction:column}
+.person-meta .nm{font-weight:700;font-size:14px}
+.person-meta .sub{font-size:11px;color:#666}
+.right{margin-left:auto}
+.empty{padding:40px;text-align:center;color:#888;font-size:13px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ DOM 헬퍼 ============ */
+  function h(tag, props){
+    var el = document.createElement(tag);
+    if (props) {
+      for (var k in props) {
+        var v = props[k];
+        if (v === null || v === undefined || v === false) continue;
+        if (k === 'class') el.className = v;
+        else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+        else if (k === 'dataset' && typeof v === 'object') Object.assign(el.dataset, v);
+        else if (k === 'html') el.innerHTML = v;
+        else if (k.charAt(0) === 'o' && k.charAt(1) === 'n' && typeof v === 'function') {
+          el.addEventListener(k.slice(2).toLowerCase(), v);
+        }
+        else if (k === 'value' || k === 'checked' || k === 'disabled' || k === 'selected') el[k] = v;
+        else el.setAttribute(k, v);
+      }
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      addChild(el, arguments[i]);
+    }
+    return el;
+  }
+  function addChild(el, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function(x){ addChild(el, x); }); return; }
+    if (c instanceof Node) { el.appendChild(c); return; }
+    el.appendChild(document.createTextNode(String(c)));
+  }
+
+  /* ============ 데이터 ============ */
+  var LS_KEY = 'vacmgr/v1';
+  var LEAVE_TYPES = {
+    annual:   {label:'연차',     deduct:1.0, color:'#2563eb', soft:'#e0ecff', text:'#1d4ed8'},
+    half_am:  {label:'오전반차', deduct:0.5, color:'#60a5fa', soft:'#e6f0ff', text:'#1d4ed8'},
+    half_pm:  {label:'오후반차', deduct:0.5, color:'#93c5fd', soft:'#eaf2ff', text:'#1d4ed8'},
+    sick:     {label:'병가',     deduct:0.0, color:'#dc2626', soft:'#fde8e8', text:'#b91c1c'},
+    family:   {label:'경조사',   deduct:0.0, color:'#7c3aed', soft:'#ece3ff', text:'#6d28d9'},
+    official: {label:'공가',     deduct:0.0, color:'#0d9488', soft:'#d6f2ee', text:'#0f766e'}
+  };
+  var TYPE_KEYS = Object.keys(LEAVE_TYPES);
+
+  function defaultState(){
+    return {
+      company:'우리 회사',
+      currentUserId:'u1',
+      people:[
+        {id:'u1', name:'이세진', dept:'엔지니어링', role:'admin',    annual:15},
+        {id:'u2', name:'김도윤', dept:'엔지니어링', role:'approver', annual:15},
+        {id:'u3', name:'박서연', dept:'디자인',     role:'member',   annual:15},
+        {id:'u4', name:'정하준', dept:'프로덕트',   role:'member',   annual:15},
+        {id:'u5', name:'최지아', dept:'운영',       role:'approver', annual:15}
+      ],
+      requests:[]
+    };
+  }
+  function load(){ try{var r=localStorage.getItem(LS_KEY);if(!r)return defaultState();var s=JSON.parse(r);if(!s.people||!s.requests)return defaultState();return s;}catch(e){return defaultState();} }
+  function save(s){ try{localStorage.setItem(LS_KEY, JSON.stringify(s));}catch(e){} }
+
+  /* ============ 날짜 유틸 ============ */
+  function pad(n){return n<10?'0'+n:''+n;}
+  function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function parseYMD(s){var p=s.split('-');return new Date(+p[0], +p[1]-1, +p[2]);}
+  function startOfMonth(d){return new Date(d.getFullYear(), d.getMonth(), 1);}
+  function addDays(d,n){var x=new Date(d); x.setDate(x.getDate()+n); return x;}
+  function daysInclusive(a,b){var s=parseYMD(a),e=parseYMD(b);return Math.max(0, Math.round((e-s)/86400000))+1;}
+  function rangeDates(a,b){var out=[],c=parseYMD(a),e=parseYMD(b);while(c<=e){out.push(ymd(c));c=addDays(c,1);}return out;}
+  function todayYMD(){return ymd(new Date());}
+
+  function usedDaysFor(uid, requests){
+    var u=0;
+    for (var i=0;i<requests.length;i++){
+      var r=requests[i];
+      if (r.userId!==uid||r.status!=='approved') continue;
+      var t=LEAVE_TYPES[r.type]; if(!t) continue;
+      if (t.deduct===0.5) u+=0.5;
+      else u+=t.deduct*daysInclusive(r.start,r.end);
+    }
+    return u;
+  }
+  function pendingDaysFor(uid, requests){
+    var p=0;
+    for (var i=0;i<requests.length;i++){
+      var r=requests[i];
+      if (r.userId!==uid||r.status!=='pending') continue;
+      var t=LEAVE_TYPES[r.type]; if(!t) continue;
+      if (t.deduct===0.5) p+=0.5;
+      else p+=t.deduct*daysInclusive(r.start,r.end);
+    }
+    return p;
+  }
+
+  /* ============ 상태 ============ */
+  var state = load();
+  var ui = {
+    tab: 'calendar',
+    monthCursor: startOfMonth(new Date()),
+    modal: null,      // null | {kind:'request', type, start, end, reason, approverId} | {kind:'person', person}
+    menuOpen: false,
+    editingCompany: false,
+    editingCompanyValue: '',
+    openNoteId: null,
+    noteDrafts: {},   // reqId -> string
+    toast: null,
+    toastTimer: null
+  };
+
+  function setPersistent(upd){ state = typeof upd==='function' ? upd(state) : Object.assign({}, state, upd); save(state); schedule(); }
+  function setUi(upd){ ui = typeof upd==='function' ? upd(ui) : Object.assign({}, ui, upd); schedule(); }
+
+  var scheduled = false;
+  function schedule(){
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(function(){ scheduled = false; render(); });
+  }
+
+  function showToast(msg){
+    if (ui.toastTimer) clearTimeout(ui.toastTimer);
+    ui.toast = msg;
+    ui.toastTimer = setTimeout(function(){ ui.toast=null; ui.toastTimer=null; schedule(); }, 2200);
+    schedule();
+  }
+
+  /* ============ 비즈니스 액션 ============ */
+  function submitRequest(payload){
+    var id = 'r_' + Math.random().toString(36).slice(2,9);
+    var next = Object.assign({id:id, status:'pending'}, payload);
+    setPersistent(function(s){ return Object.assign({},s,{requests:s.requests.concat([next])}); });
+    setUi({modal:null});
+    showToast('휴가 신청이 제출되었습니다');
+  }
+  function decide(reqId, status, note){
+    setPersistent(function(s){
+      return Object.assign({},s,{requests:s.requests.map(function(r){
+        if (r.id!==reqId) return r;
+        return Object.assign({},r,{status:status, decidedAt:new Date().toISOString(), decidedBy:state.currentUserId, decidedNote:note||''});
+      })});
+    });
+    setUi(function(u){ var nd = Object.assign({},u.noteDrafts); delete nd[reqId]; return Object.assign({},u,{openNoteId:null, noteDrafts:nd}); });
+    showToast(status==='approved'?'승인 처리됨':'반려 처리됨');
+  }
+  function cancelMine(reqId){
+    setPersistent(function(s){
+      return Object.assign({},s,{requests:s.requests.filter(function(r){ return !(r.id===reqId && r.userId===state.currentUserId && r.status==='pending'); })});
+    });
+    showToast('신청이 취소되었습니다');
+  }
+  function switchUser(uid){ setPersistent({currentUserId:uid}); }
+  function upsertPerson(p){
+    setPersistent(function(s){
+      var exists = s.people.some(function(x){return x.id===p.id;});
+      var people = exists ? s.people.map(function(x){return x.id===p.id?p:x;}) : s.people.concat([p]);
+      return Object.assign({},s,{people:people});
+    });
+  }
+  function removePerson(id){
+    setPersistent(function(s){
+      if (s.people.length<=1) return s;
+      var people = s.people.filter(function(p){return p.id!==id;});
+      var requests = s.requests.filter(function(r){return r.userId!==id && r.approverId!==id;});
+      var currentUserId = s.currentUserId===id ? people[0].id : s.currentUserId;
+      return Object.assign({},s,{people:people, requests:requests, currentUserId:currentUserId});
+    });
+  }
+  function resetAll(){
+    if (confirm('모든 데이터를 초기화할까요? 복구할 수 없습니다.')) {
+      try{ localStorage.removeItem(LS_KEY); }catch(e){}
+      state = defaultState();
+      ui = Object.assign({}, ui, {modal:null, menuOpen:false});
+      showToast('초기화 완료');
+    }
+  }
+  function exportJSON(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'vacation-data-'+todayYMD()+'.json'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  function importJSON(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var s = JSON.parse(reader.result);
+        if (s.people && s.requests){ state = s; save(state); schedule(); showToast('가져오기 완료'); }
+        else showToast('파일 형식이 올바르지 않습니다');
+      }catch(e){ showToast('파일을 읽을 수 없습니다'); }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ============ 렌더 ============ */
+  function render(){
+    var active = document.activeElement;
+    var fid = active && active.id;
+    var ss = active && active.tagName === 'INPUT' && active.type !== 'date' ? active.selectionStart : null;
+    var se = active && active.tagName === 'INPUT' && active.type !== 'date' ? active.selectionEnd : null;
+    var scrollY = window.scrollY;
+
+    var root = document.getElementById('root');
+    root.innerHTML = '';
+    root.appendChild(buildApp());
+
+    if (fid) {
+      var restored = document.getElementById(fid);
+      if (restored) {
+        try { restored.focus(); } catch(e){}
+        if (ss !== null && se !== null && restored.setSelectionRange) {
+          try { restored.setSelectionRange(ss, se); } catch(e){}
+        }
+      }
+    }
+    window.scrollTo(0, scrollY);
+  }
+
+  function buildApp(){
+    var me = state.people.find(function(p){return p.id===state.currentUserId;}) || state.people[0];
+    var isApprover = me.role==='approver' || me.role==='admin';
+    var isAdmin = me.role==='admin';
+    var pendingForMe = state.requests.filter(function(r){return r.status==='pending' && r.approverId===me.id;});
+
+    var wrap = h('div', null,
+      buildTopBar(me),
+      h('div', {class:'app-shell'},
+        buildTabs(me, isApprover, isAdmin, pendingForMe),
+        buildView(me, isApprover, isAdmin, pendingForMe)
+      )
+    );
+
+    if (ui.modal && ui.modal.kind === 'request') wrap.appendChild(buildRequestModal(me));
+    if (ui.modal && ui.modal.kind === 'person')  wrap.appendChild(buildPersonEditor());
+    if (ui.toast) wrap.appendChild(h('div', {class:'toast'}, ui.toast));
+
+    return wrap;
+  }
+
+  function buildTopBar(me){
+    var fileInput = h('input', {
+      type:'file', style:{display:'none'}, accept:'.json,application/json',
+      onchange: function(e){ if (e.target.files && e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; }
+    });
+
+    var titleEl = ui.editingCompany
+      ? h('input', {
+          id:'title-edit', class:'title-edit', autofocus:true, value: ui.editingCompanyValue,
+          oninput: function(e){ ui.editingCompanyValue = e.target.value; },
+          onblur: function(){ setPersistent({company: ui.editingCompanyValue || state.company}); setUi({editingCompany:false}); },
+          onkeydown: function(e){ if (e.key==='Enter'){ setPersistent({company: ui.editingCompanyValue || state.company}); setUi({editingCompany:false}); } }
+        })
+      : h('button', {
+          class:'title',
+          onclick: function(){ setUi({editingCompany:true, editingCompanyValue: state.company}); }
+        }, state.company + ' · 휴가');
+
+    var userSelect = h('select', {
+      class:'user-select',
+      onchange: function(e){ switchUser(e.target.value); }
+    });
+    state.people.forEach(function(p){
+      var suffix = p.role==='admin' ? ' · 관리자' : p.role==='approver' ? ' · 결재자' : '';
+      var opt = h('option', {value:p.id}, p.name + ' · ' + p.dept + suffix);
+      if (p.id === state.currentUserId) opt.selected = true;
+      userSelect.appendChild(opt);
+    });
+
+    var menuEl = ui.menuOpen ? h('div', {class:'menu', onmouseleave:function(){setUi({menuOpen:false});}},
+      h('button', {onclick:function(){ exportJSON(); setUi({menuOpen:false}); }}, 'JSON 내보내기'),
+      h('button', {onclick:function(){ fileInput.click(); setUi({menuOpen:false}); }}, 'JSON 가져오기'),
+      h('div', {class:'sep'}),
+      h('button', {class:'danger', onclick:function(){ setUi({menuOpen:false}); resetAll(); }}, '전체 초기화')
+    ) : null;
+
+    return h('div', {class:'topbar'},
+      h('div', {class:'topbar-inner'},
+        h('div', {class:'logo'}, 'V'),
+        titleEl,
+        h('div', {class:'spacer'}),
+        userSelect,
+        h('div', {style:{position:'relative'}},
+          h('button', {class:'icon-btn', onclick:function(){ setUi({menuOpen: !ui.menuOpen}); }}, '⋯'),
+          menuEl,
+          fileInput
+        )
+      )
+    );
+  }
+
+  function buildTabs(me, isApprover, isAdmin, pendingForMe){
+    var tabs = h('div', {class:'tabs'});
+
+    function tab(key, label, badge){
+      var el = h('button', {
+        class: 'tab' + (ui.tab===key ? ' active':''),
+        onclick: function(){ setUi({tab:key}); }
+      }, label);
+      if (badge) el.appendChild(h('span', {class:'badge'}, String(badge)));
+      return el;
+    }
+
+    tabs.appendChild(tab('calendar', '캘린더'));
+    tabs.appendChild(tab('mine', '내 휴가'));
+    if (isApprover) tabs.appendChild(tab('inbox', '결재함', pendingForMe.length > 0 ? pendingForMe.length : null));
+    if (isAdmin) tabs.appendChild(tab('team', '팀원 관리'));
+
+    tabs.appendChild(h('div', {class:'right'},
+      h('button', {class:'btn-primary', onclick:function(){
+        setUi({modal:{kind:'request', type:'annual', start:todayYMD(), end:todayYMD(), reason:'', approverId:firstApprover(me)}});
+      }}, '+ 휴가 신청')
+    ));
+    return tabs;
+  }
+
+  function firstApprover(me){
+    var a = state.people.find(function(p){ return (p.role==='approver'||p.role==='admin') && p.id!==me.id; });
+    return a ? a.id : '';
+  }
+
+  function buildView(me, isApprover, isAdmin, pendingForMe){
+    if (ui.tab === 'calendar') return buildCalendar(me);
+    if (ui.tab === 'mine')     return buildMine(me);
+    if (ui.tab === 'inbox' && isApprover) return buildInbox(pendingForMe);
+    if (ui.tab === 'team' && isAdmin)     return buildTeam();
+    return buildCalendar(me);
+  }
+
+  /* ---- 캘린더 ---- */
+  function buildCalendar(me){
+    var first = startOfMonth(ui.monthCursor);
+    var gridStart = addDays(first, -first.getDay());
+    var cells = []; for (var i=0;i<42;i++) cells.push(addDays(gridStart, i));
+    var monthLabel = ui.monthCursor.getFullYear() + '년 ' + (ui.monthCursor.getMonth()+1) + '월';
+
+    // build index by date
+    var byDate = {};
+    state.requests.forEach(function(r){
+      if (r.status==='rejected') return;
+      rangeDates(r.start, r.end).forEach(function(k){ (byDate[k]=byDate[k]||[]).push(r); });
+    });
+
+    var personById = {};
+    state.people.forEach(function(p){ personById[p.id] = p; });
+
+    var head = h('div', {class:'cal-head'},
+      h('button', {class:'icon-btn', onclick:function(){ setUi({monthCursor:new Date(ui.monthCursor.getFullYear(), ui.monthCursor.getMonth()-1, 1)}); }}, '‹'),
+      h('button', {class:'btn-outline', onclick:function(){ setUi({monthCursor:startOfMonth(new Date())}); }}, '오늘'),
+      h('button', {class:'icon-btn', onclick:function(){ setUi({monthCursor:new Date(ui.monthCursor.getFullYear(), ui.monthCursor.getMonth()+1, 1)}); }}, '›'),
+      h('div', {class:'cal-label'}, monthLabel),
+      h('div', {class:'cal-legend'}, TYPE_KEYS.map(function(k){
+        var t = LEAVE_TYPES[k];
+        return h('span', null, h('span', {class:'dot', style:{background:t.color}}), ' ', t.label);
+      }))
+    );
+
+    var weekdays = h('div', {class:'cal-weekdays'});
+    ['일','월','화','수','목','금','토'].forEach(function(d,i){
+      weekdays.appendChild(h('div', {class: i===0?'sun':i===6?'sat':''}, d));
+    });
+
+    var grid = h('div', {class:'cal-grid'});
+    cells.forEach(function(d){
+      var key = ymd(d);
+      var inMonth = d.getMonth() === ui.monthCursor.getMonth();
+      var items = (byDate[key]||[]).slice().sort(function(a,b){return a.userId.localeCompare(b.userId);});
+      var isToday = key === todayYMD();
+      var wknd = d.getDay()===0 || d.getDay()===6;
+      var cls = 'day' + (wknd?' wknd':'') + (inMonth?'':' outside');
+
+      var numCls = 'day-num' + (isToday?' today':'') + (d.getDay()===0?' sun':'') + (d.getDay()===6?' sat':'');
+      var cell = h('div', {class:cls},
+        h('div', {class:'day-head'},
+          h('span', {class:numCls}, String(d.getDate())),
+          h('button', {class:'add-btn', onclick:function(){
+            var me2 = state.people.find(function(p){return p.id===state.currentUserId;});
+            setUi({modal:{kind:'request', type:'annual', start:key, end:key, reason:'', approverId:firstApprover(me2)}});
+          }}, '+')
+        )
+      );
+
+      items.slice(0,3).forEach(function(r){
+        var per = personById[r.userId];
+        var t = LEAVE_TYPES[r.type];
+        var pending = r.status==='pending';
+        var ev = h('div', {
+          class: 'ev' + (pending?' pending':''),
+          style: {background: t?t.soft:'#eef0f3', color: t?t.text:'#111'},
+          title: (per?per.name:'?') + ' · ' + (t?t.label:r.type) + (pending?' (대기)':'') + (r.reason?' · '+r.reason:'')
+        },
+          h('span', {class:'dot', style:{background:t?t.color:'#888'}}),
+          h('span', {class:'who'}, per?per.name:'?'),
+          h('span', {class:'kind'}, '· ' + (t?t.label:r.type))
+        );
+        cell.appendChild(ev);
+      });
+      if (items.length > 3) cell.appendChild(h('div', {class:'more'}, '+' + (items.length-3) + '명'));
+
+      grid.appendChild(cell);
+    });
+
+    return h('div', {class:'card'}, head, weekdays, grid);
+  }
+
+  /* ---- 내 휴가 ---- */
+  function buildMine(me){
+    var mine = state.requests.filter(function(r){return r.userId===me.id;}).sort(function(a,b){return b.start.localeCompare(a.start);});
+    var used = usedDaysFor(me.id, state.requests);
+    var pending = pendingDaysFor(me.id, state.requests);
+    var remaining = me.annual - used;
+
+    var statEl = h('div', {class:'stat-grid'},
+      stat('총 연차', me.annual + '일'),
+      stat('사용', used + '일'),
+      stat('승인 대기', pending + '일', '#b45309'),
+      stat('잔여', remaining + '일', remaining<=3?'#dc2626':'#16a34a', true)
+    );
+
+    var listEl = h('div', {class:'card'},
+      h('div', {class:'card-head'}, h('div', {class:'card-title'}, '내 신청 내역')),
+      mine.length === 0
+        ? h('div', {class:'empty'}, '아직 신청한 휴가가 없습니다.')
+        : h('div', {class:'divide'}, mine.map(function(r){ return buildRow(r, true); }))
+    );
+
+    return h('div', {style:{display:'flex', flexDirection:'column', gap:'14px'}}, statEl, listEl);
+  }
+
+  function stat(label, value, color, strong){
+    return h('div', {class:'stat'},
+      h('div', {class:'lbl'}, label),
+      h('div', {class:'val' + (strong?' val-lg':''), style:{color: color || '#111'}}, value)
+    );
+  }
+
+  /* ---- 결재함 ---- */
+  function buildInbox(pendingForMe){
+    if (pendingForMe.length === 0) {
+      return h('div', {class:'card empty'}, '대기 중인 결재 건이 없습니다.');
+    }
+    return h('div', {class:'card divide'}, pendingForMe.map(function(r){ return buildRow(r, false); }));
+  }
+
+  /* ---- 요청 행 ---- */
+  function buildRow(r, mine){
+    var personById = {};
+    state.people.forEach(function(p){ personById[p.id]=p; });
+    var per = personById[r.userId];
+    var approver = personById[r.approverId];
+    var t = LEAVE_TYPES[r.type];
+    var daysLbl = t.deduct === 0.5 ? '0.5일' : (daysInclusive(r.start, r.end) + '일');
+    var statusEl;
+    if (r.status === 'approved') statusEl = h('span', {class:'chip status-approved'}, '승인');
+    else if (r.status === 'rejected') statusEl = h('span', {class:'chip status-rejected'}, '반려');
+    else statusEl = h('span', {class:'chip status-pending'}, '대기');
+
+    var row = h('div', {class:'row'},
+      h('div', {style:{display:'flex', alignItems:'center', gap:'8px', minWidth:'160px'}},
+        h('span', {class:'dot', style:{background:t.color}}),
+        h('strong', null, per?per.name:'?'),
+        h('span', {style:{fontSize:'11px', color:'#666'}}, per?per.dept:'')
+      ),
+      h('span', {class:'chip', style:{background:t.soft, color:t.text}}, t.label),
+      h('div', {style:{fontSize:'13px', fontVariantNumeric:'tabular-nums'}},
+        r.start===r.end ? r.start : (r.start + ' → ' + r.end),
+        h('span', {style:{marginLeft:'6px', fontSize:'11px', color:'#666'}}, '· ' + daysLbl)
+      ),
+      r.reason ? h('div', {style:{fontSize:'13px', color:'#555', maxWidth:'260px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}, '"' + r.reason + '"') : null
+    );
+
+    var actions = h('div', {class:'right', style:{display:'flex', alignItems:'center', gap:'6px'}}, statusEl);
+    if (mine && r.status === 'pending') {
+      actions.appendChild(h('button', {class:'btn-outline', onclick:function(){ cancelMine(r.id); }}, '취소'));
+    } else if (!mine && r.status === 'pending') {
+      actions.appendChild(h('button', {class:'btn-outline', onclick:function(){ setUi({openNoteId: ui.openNoteId===r.id ? null : r.id}); }}, '메모'));
+      actions.appendChild(h('button', {class:'btn-danger-outline', onclick:function(){ decide(r.id, 'rejected', ui.noteDrafts[r.id] || ''); }}, '반려'));
+      actions.appendChild(h('button', {class:'btn-success', onclick:function(){ decide(r.id, 'approved', ui.noteDrafts[r.id] || ''); }}, '승인'));
+    }
+    row.appendChild(actions);
+
+    if (!mine && ui.openNoteId === r.id) {
+      row.appendChild(h('div', {style:{width:'100%'}},
+        h('input', {
+          id: 'note-' + r.id, class:'input', style:{marginTop:'6px'},
+          placeholder:'승인/반려 메모 (선택)', value: ui.noteDrafts[r.id] || '',
+          oninput: function(e){ var v = e.target.value; ui.noteDrafts[r.id] = v; /* no re-render needed */ }
+        })
+      ));
+    }
+    if (r.status !== 'pending' && r.decidedNote) {
+      row.appendChild(h('div', {style:{width:'100%', fontSize:'11px', color:'#666', paddingLeft:'6px'}}, '결재 메모: ' + r.decidedNote));
+    }
+    if (mine && approver && r.status === 'pending') {
+      row.appendChild(h('div', {style:{width:'100%', fontSize:'11px', color:'#888'}}, '결재자: ' + approver.name));
+    }
+    return row;
+  }
+
+  /* ---- 팀원 관리 ---- */
+  function buildTeam(){
+    var head = h('div', {class:'card-head'},
+      h('div', {class:'card-title'}, '팀원 목록 ',
+        h('span', {style:{color:'#aaa', fontSize:'13px', fontWeight:500}}, '(' + state.people.length + ')')
+      ),
+      h('div', {class:'right'},
+        h('button', {class:'btn-primary', onclick:function(){
+          setUi({modal:{kind:'person', person:{id:'u_'+Math.random().toString(36).slice(2,7), name:'', dept:'', role:'member', annual:15}, isNew:true}});
+        }}, '+ 팀원 추가')
+      )
+    );
+
+    var list = h('div', {class:'divide'});
+    state.people.forEach(function(p){
+      var used = usedDaysFor(p.id, state.requests);
+      var remaining = p.annual - used;
+      var roleLbl = p.role==='admin'?'관리자':p.role==='approver'?'결재자':'일반';
+
+      list.appendChild(h('div', {class:'person-row'},
+        h('div', {class:'avatar'}, p.name ? p.name.charAt(0) : '?'),
+        h('div', {class:'person-meta'},
+          h('span', {class:'nm'}, p.name || '(이름없음)'),
+          h('span', {class:'sub'}, p.dept + ' · ' + roleLbl)
+        ),
+        h('div', {class:'right', style:{display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap'}},
+          h('span', {style:{fontSize:'13px', color:'#555', fontVariantNumeric:'tabular-nums'}},
+            used + '/' + p.annual + '일 사용 · ',
+            h('strong', {style:{color: remaining<=3?'#dc2626':'#059669'}}, '잔여 ' + remaining + '일')
+          ),
+          h('button', {class:'btn-outline', onclick:function(){
+            setUi({modal:{kind:'person', person:Object.assign({},p), isNew:false}});
+          }}, '편집'),
+          h('button', {class:'btn-danger-outline', onclick:function(){
+            if (confirm(p.name + '님을 삭제할까요? 관련 신청 내역도 제거됩니다.')) removePerson(p.id);
+          }}, '삭제')
+        )
+      ));
+    });
+
+    return h('div', {class:'card'}, head, list);
+  }
+
+  /* ---- 휴가 신청 모달 ---- */
+  function buildRequestModal(me){
+    var m = ui.modal;
+    var t = LEAVE_TYPES[m.type];
+    var isHalf = t.deduct === 0.5;
+    var endToUse = isHalf ? m.start : m.end;
+    var invalidRange = parseYMD(endToUse) < parseYMD(m.start);
+    var count = isHalf ? 0.5 : daysInclusive(m.start, endToUse) * t.deduct;
+    var usedDays = usedDaysFor(me.id, state.requests);
+    var remaining = me.annual - usedDays;
+    var wouldRemain = t.deduct > 0 ? (remaining - count) : remaining;
+    var overBudget = t.deduct > 0 && wouldRemain < 0;
+    var approvers = state.people.filter(function(p){ return (p.role==='approver'||p.role==='admin') && p.id!==me.id; });
+    var canSubmit = !invalidRange && !overBudget && m.approverId && !isNaN(new Date(m.start).getTime());
+
+    function updateModal(patch){
+      setUi({modal: Object.assign({}, ui.modal, patch)});
+    }
+
+    // Type grid
+    var typeGrid = h('div', {class:'type-grid'});
+    TYPE_KEYS.forEach(function(k){
+      var v = LEAVE_TYPES[k];
+      var sub = v.deduct===1 ? '1일 차감' : v.deduct===0.5 ? '0.5일 차감' : '연차 미차감';
+      typeGrid.appendChild(h('button', {
+        class:'type-card' + (m.type===k?' selected':''),
+        onclick: function(){ updateModal({type:k}); }
+      },
+        h('div', {class:'type-name'}, h('span', {class:'dot', style:{background:v.color}}), v.label),
+        h('div', {class:'type-sub'}, sub)
+      ));
+    });
+
+    // Dates
+    var dateRow = h('div', {class:'two-col'},
+      h('div', null,
+        h('div', {class:'field-lbl'}, isHalf?'날짜':'시작일'),
+        h('input', {id:'m-start', class:'input', type:'date', value:m.start,
+          oninput:function(e){ updateModal({start:e.target.value}); }})
+      ),
+      h('div', null,
+        h('div', {class:'field-lbl'}, '종료일'),
+        h('input', {id:'m-end', class:'input', type:'date', value:isHalf?m.start:m.end, disabled:isHalf,
+          oninput:function(e){ updateModal({end:e.target.value}); }})
+      )
+    );
+
+    // Reason
+    var reasonEl = h('div', null,
+      h('div', {class:'field-lbl'}, '사유 (선택)'),
+      h('input', {id:'m-reason', class:'input', value:m.reason, placeholder:'예) 개인 용무, 가족 행사 등',
+        oninput:function(e){ m.reason = e.target.value; /* skip re-render */ }})
+    );
+
+    // Approver
+    var approverSel = h('select', {id:'m-approver', class:'select',
+      onchange:function(e){ updateModal({approverId:e.target.value}); }});
+    approvers.forEach(function(a){
+      var opt = h('option', {value:a.id}, a.name + ' · ' + a.dept);
+      if (a.id === m.approverId) opt.selected = true;
+      approverSel.appendChild(opt);
+    });
+
+    // Summary
+    var sum = h('div', {class:'summary'},
+      h('div', {class:'ln'}, h('span', {class:'muted'}, '차감'), h('span', null, h('strong', null, t.deduct===0?'미차감':(count + '일')))),
+      h('div', {class:'ln'}, h('span', {class:'muted'}, '현재 잔여'), h('span', null, remaining + '일')),
+      h('div', {class:'ln'},
+        h('span', {class:'muted'}, '신청 후 잔여'),
+        h('span', {style:{fontWeight:800, color: overBudget?'#dc2626':'#111'}}, wouldRemain + '일')
+      )
+    );
+    if (invalidRange) sum.appendChild(h('div', {class:'danger'}, '종료일이 시작일보다 앞설 수 없습니다.'));
+    if (overBudget) sum.appendChild(h('div', {class:'danger'}, '잔여 연차가 부족합니다.'));
+
+    var modalBox = h('div', {class:'modal'},
+      h('div', {class:'modal-head'},
+        h('div', {class:'modal-title'}, '휴가 신청'),
+        h('div', {class:'right'}, h('button', {class:'icon-btn', onclick:function(){ setUi({modal:null}); }}, '✕'))
+      ),
+      h('div', {class:'modal-body'},
+        h('div', null, h('div', {class:'field-lbl'}, '유형'), typeGrid),
+        dateRow,
+        reasonEl,
+        h('div', null,
+          h('div', {class:'field-lbl'}, '결재자'),
+          approvers.length === 0
+            ? h('div', {style:{fontSize:'13px', color:'#dc2626'}}, '결재 권한이 있는 팀원이 없습니다.')
+            : approverSel
+        ),
+        sum
+      ),
+      h('div', {class:'modal-foot'},
+        h('button', {class:'btn-modal cancel', onclick:function(){ setUi({modal:null}); }}, '취소'),
+        h('button', {class:'btn-modal btn-primary', disabled:!canSubmit, onclick:function(){
+          submitRequest({
+            userId: me.id, type: m.type,
+            start: m.start, end: isHalf ? m.start : m.end,
+            reason: m.reason || '', approverId: m.approverId
+          });
+        }}, '제출')
+      )
+    );
+
+    return h('div', {class:'modal-root', onclick:function(e){
+      if (e.target.classList.contains('modal-root')) setUi({modal:null});
+    }}, modalBox);
+  }
+
+  /* ---- 팀원 편집 모달 ---- */
+  function buildPersonEditor(){
+    var m = ui.modal;
+    var p = m.person;
+    var valid = p.name.trim() && p.dept.trim() && p.annual >= 0;
+
+    function updateP(patch){
+      setUi({modal: Object.assign({}, ui.modal, {person: Object.assign({}, p, patch)})});
+    }
+
+    var roleSel = h('select', {class:'select', onchange:function(e){ updateP({role:e.target.value}); }});
+    [['member','일반'],['approver','결재자'],['admin','관리자']].forEach(function(x){
+      var opt = h('option', {value:x[0]}, x[1]); if (p.role===x[0]) opt.selected = true; roleSel.appendChild(opt);
+    });
+
+    var modalBox = h('div', {class:'modal', style:{maxWidth:'420px'}},
+      h('div', {class:'modal-head'}, h('div', {class:'modal-title'}, m.isNew ? '팀원 추가' : '팀원 편집')),
+      h('div', {class:'modal-body'},
+        h('div', null, h('div', {class:'field-lbl'}, '이름'),
+          h('input', {id:'pe-name', class:'input', value:p.name, oninput:function(e){ updateP({name:e.target.value}); }})),
+        h('div', null, h('div', {class:'field-lbl'}, '부서'),
+          h('input', {id:'pe-dept', class:'input', value:p.dept, oninput:function(e){ updateP({dept:e.target.value}); }})),
+        h('div', {class:'two-col'},
+          h('div', null, h('div', {class:'field-lbl'}, '권한'), roleSel),
+          h('div', null, h('div', {class:'field-lbl'}, '연간 연차(일)'),
+            h('input', {id:'pe-annual', class:'input', type:'number', min:'0', step:'0.5', value:String(p.annual),
+              oninput:function(e){ updateP({annual:Number(e.target.value)}); }}))
+        )
+      ),
+      h('div', {class:'modal-foot'},
+        h('button', {class:'btn-modal cancel', onclick:function(){ setUi({modal:null}); }}, '취소'),
+        h('button', {class:'btn-modal btn-primary', disabled:!valid, onclick:function(){
+          upsertPerson(p); setUi({modal:null});
+        }}, '저장')
+      )
+    );
+
+    return h('div', {class:'modal-root', onclick:function(e){
+      if (e.target.classList.contains('modal-root')) setUi({modal:null});
+    }}, modalBox);
+  }
+
+  /* ============ 최초 렌더 ============ */
+  try {
+    render();
+  } catch(e) {
+    document.getElementById('root').innerHTML =
+      '<div style="max-width:700px;margin:40px auto;padding:24px;background:#fff1f2;border:1px solid #fecaca;border-radius:12px;color:#991b1b;white-space:pre-wrap;font-family:monospace;font-size:12px">' +
+      '앱 로딩 오류:\n' + (e.stack || e.message || String(e)) + '</div>';
+  }
+})();
+</script>
+</body>
+</html>
