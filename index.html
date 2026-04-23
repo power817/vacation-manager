@@ -109,7 +109,9 @@ input,select,textarea{font:inherit;color:inherit}
 .input,.select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff;outline:none;font-family:inherit}
 .input:focus,.select:focus{border-color:var(--ink)}
 .input:disabled{background:var(--soft2);color:#888}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.two-col > *{min-width:0}
+.two-col .input{width:100%;max-width:100%}
 .type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .type-card{text-align:left;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;min-width:0}
 .type-card.selected{border-color:var(--ink);border-width:2px;padding:9px}
@@ -179,6 +181,8 @@ input,select,textarea{font:inherit;color:inherit}
 
   .modal-body{padding:14px 16px;gap:12px}
   .type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* 모바일에선 시작일/종료일을 세로로 쌓아서 겹침 방지 */
+  .two-col{grid-template-columns:1fr;gap:10px}
 }
 
 /* 아주 작은 폰 (iPhone SE 등) */
