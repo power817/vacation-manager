@@ -223,29 +223,58 @@ input,select,textarea{font:inherit;color:inherit}
     return p;
   }
 
-  /* ============ 상태 ============ */
-  var state = load();
+    /* ============ 상태 및 Firebase 실시간 연동 ============ */
+  var state = load(); // 처음엔 로컬 데이터를 먼저 보여줍니다.
   var ui = {
     tab: 'calendar',
     monthCursor: startOfMonth(new Date()),
-    modal: null,      // null | {kind:'request', type, start, end, reason, approverId} | {kind:'person', person}
+    modal: null,
     menuOpen: false,
     editingCompany: false,
     editingCompanyValue: '',
     openNoteId: null,
-    noteDrafts: {},   // reqId -> string
+    noteDrafts: {},
     toast: null,
     toastTimer: null
   };
 
-  function setPersistent(upd){ state = typeof upd==='function' ? upd(state) : Object.assign({}, state, upd); save(state); schedule(); }
-  function setUi(upd){ ui = typeof upd==='function' ? upd(ui) : Object.assign({}, ui, upd); schedule(); }
-
+  // UI 업데이트용 스케줄러
   var scheduled = false;
   function schedule(){
     if (scheduled) return;
     scheduled = true;
     requestAnimationFrame(function(){ scheduled = false; render(); });
+  }
+
+  // 핵심 수정: 데이터를 저장할 때 Firebase 서버에도 쏩니다.
+  function setPersistent(upd){ 
+    state = typeof upd==='function' ? upd(state) : Object.assign({}, state, upd);
+    save(state); // 로컬 스토리지 저장
+    if (window.saveToFirebase) {
+      window.saveToFirebase(state); // Firebase 서버 저장 함수 호출
+    }
+    schedule(); 
+  }
+
+  function setUi(upd){ ui = typeof upd==='function' ? upd(ui) : Object.assign({}, ui, upd); schedule(); }
+
+  // 앱 로드 시 Firebase와 연결 시작
+  window.addEventListener('load', function() {
+    if (window.syncWithFirebase) {
+      window.syncWithFirebase(state, function(remoteState) {
+        state = remoteState; // 서버의 최신 데이터를 내 상태로 복사
+        save(state);         // 내 컴퓨터에도 백업
+        schedule();          // 화면 다시 그리기
+      });
+    }
+  });
+
+  /* ============ 토스트 메시지 (기존과 동일) ============ */
+  function showToast(msg){
+    if (ui.toastTimer) clearTimeout(ui.toastTimer);
+    ui.toast = msg;
+    ui.toastTimer = setTimeout(function(){ ui.toast=null; ui.toastTimer=null; schedule(); }, 2200);
+    schedule();
   }
 
   function showToast(msg){
